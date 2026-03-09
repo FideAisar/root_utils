@@ -409,3 +409,90 @@ row0, row5 = load_rows("matrix.txt", [0, 5])
 
 Default separator is `r"\s+"` (any whitespace).  Pass `sep=","` for CSV files.
 
+---
+
+# Examples
+In c++
+
+```c++
+#include <iostream>
+#include <fstream>
+#include "TH1D.h"
+#include "TApplication.h"
+#include "TCanvas.h"
+#include "TF1.h"        
+#include "TF2.h"        
+#include "TLegend.h"   
+using namespace std;
+
+int main() {
+  TApplication app("app",0,0);
+
+  // setup histogram
+  TH1D *hist = new TH1D("hist","Invariant mass distribution",100,1.3,5);
+  
+  // read from file
+  double readvalue;
+  ifstream infile("jpsimass.txt");
+  while(infile >> readvalue){
+      hist->Fill(readvalue);
+  }
+  
+  // fit
+  TF1 *modelfit = new TF1("modelfit","gaus(0)+gaus(3)+pol1(6)",1,5);
+  modelfit->SetNpx(5000);
+  modelfit->SetParameters(6000,3.1,0.14,1500,3.6,0.1,48200,-1621);
+  modelfit->SetParLimits(4,3.4,3.7);
+
+  for(int i=0; i<8; i++){
+    hist->Fit(modelfit,"0");
+  }
+
+  // canvas
+  TCanvas *can = new TCanvas("can","can",600,400);
+  can->SetMargin(0.15,0.05,0.1,0.1);
+  can->cd();
+  hist->GetXaxis()->SetTitle("m_{#mu^{+}#mu^{-}}");
+  hist->GetYaxis()->SetTitle("counts");
+
+  // draw
+  hist->Draw("E");
+  modelfit->Draw("same");
+
+
+
+  app.Run();
+  return 0;
+}
+```
+
+In Python + root_utils:
+```python
+from root_utils import *
+
+# Style per latex
+#set_style()
+
+data = load_row("jpsimass.txt")
+h = histogram(data,bins=100,title="Conteggi")
+
+
+f = func(expression="gaus(0)+pol1(3)",
+         params=[50000,3.1,1,50000,-2000],
+         param_names=["A","#mu","#sigma","q","m"],
+         xmin=1,xmax=5)
+
+fit_f = fit(h,f)
+
+
+c, leg = draw(objects=[h,fit_f], 
+     labels=["Counts", "Fit"],
+     options=["hist","dashed"],
+     hist_stats=True,
+     #fit_stats=True,
+     save="interpolazione.pdf",
+     legend_border=2,
+     legend_width=0.3,
+     legend_fill_alpha=1,)
+```
+![interpolazione](/esempi/interpolazione/interpolazione.png)

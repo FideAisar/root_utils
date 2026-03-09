@@ -1,6 +1,5 @@
 from root_utils import *
 
-# Style per latex
 #set_style()
 
 data = load_row("jpsimass.txt")
@@ -20,7 +19,7 @@ c, leg = draw(objects=[h,fit_f],
      options=["hist","dashed"],
      hist_stats=True,
      #fit_stats=True,
-     save="interpolazione.pdf",
      legend_border=2,
      legend_width=0.3,
-     legend_fill_alpha=1,)
+     legend_fill_alpha=1,
+     save="interpolazione.pdf",)
