@@ -30,77 +30,31 @@ set_style()  # apply Times font, no stat box, clean margins
 ### `set_style()`
 Apply global publication-ready style (Times New Roman, no stat/title box, tick marks on all sides).
 
-
 ### Colors · `color(name)`
 Resolve a name to a ROOT color code. Pass anywhere a `color=` parameter is accepted.
-
 ```
 "black"  "white"  "red"  "dark_red"  "light_red"
 "blue"   "dark_blue"  "light_blue"  "cyan"
 "green"  "dark_green"  "light_green"
 "orange"  "yellow"  "magenta"  "violet"  "gray"  "dark_gray"
 ```
-
 Raw ROOT integers (e.g. `ROOT.kRed + 3`) are always accepted too.
 
-
 ### Line styles · `line_style(style)`
-
 ```
 "solid"  "dashed"  "dotted"  "dash_dot"  "dash_dot_dot"
 "long_dashed"  "long_dash_dot"  "long_dash_dot_dot"
 ```
 
 ### Marker styles · `marker_style(style)`
-
 ```
-# filled
-"circle"  "square"  "triangle_up"  "triangle_down"  "star"  "diamond"
-# open
-"open_circle"  "open_square"  "open_triangle_up"  "open_triangle_down"  "open_star"  "open_diamond"
-# simple
-"dot"  "plus"  "asterisk"  "cross"
+# filled: "circle"  "square"  "triangle_up"  "triangle_down"  "star"  "diamond"
+# open:   "open_circle"  "open_square"  "open_triangle_up"  "open_triangle_down"  "open_star"  "open_diamond"
+# simple: "dot"  "plus"  "asterisk"  "cross"
 ```
 
 ### TLatex · `latex(text)`
 Pass-through that strips `$` characters — copy-paste LaTeX-wrapped TLatex strings safely.
-
-```python
-latex("#mu #pm #sigma")       # '#mu #pm #sigma'
-latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
-```
-```
-"black"  "white"  "red"  "dark_red"  "light_red"
-"blue"   "dark_blue"  "light_blue"  "cyan"
-"green"  "dark_green"  "light_green"
-"orange"  "yellow"  "magenta"  "violet"  "gray"  "dark_gray"
-```
-
-Raw ROOT integers (e.g. `ROOT.kRed + 3`) are always accepted too.
-
-
-### Line styles · `line_style(style)`
-
-```
-"solid"  "dashed"  "dotted"  "dash_dot"  "dash_dot_dot"
-"long_dashed"  "long_dash_dot"  "long_dash_dot_dot"
-```
-
-### Marker styles · `marker_style(style)`
-
-```
-# filled
-"circle"  "square"  "triangle_up"  "triangle_down"  "star"  "diamond"
-# open
-"open_circle"  "open_square"  "open_triangle_up"  "open_triangle_down"  "open_star"  "open_diamond"
-# simple
-"dot"  "plus"  "asterisk"  "cross"
-```
-
-
-### TLatex · `latex(text)`
-Pass-through that strips `$` characters — copy-paste LaTeX-wrapped TLatex strings safely.
-
 ```python
 latex("#mu #pm #sigma")       # '#mu #pm #sigma'
 latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
@@ -112,19 +66,20 @@ latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
 
 ### `graph(x, y, ex, ey, ...)` → `TGraphErrors`
 ```python
-g = graph(x=x, 
-          y=y, ey=dy,
-          xlabel="t [ns]", ylabel="V [mV]",
-          color="red", marker="circle")
+g = graph(x = np.ndarray,
+          y = np.ndarray,
+          ex = np.ndarray = None,
+          ey =  np.ndarray = None,
+          title =  "",
+          xlabel = "x",
+          ylabel = "y",
+          color = "blue",
+          marker = "circle",
+          marker_size = 1.2,
+          line_style  = "solid",
+          line_width = 2,
+         )
 ```
-
-| Parameter | Default |
-|-----------|---------|
-| `color` | `"blue"` |
-| `marker` | `"circle"` |
-| `marker_size` | `1.2` |
-| `line_style` | `"solid"` |
-| `line_width` | `2` |
 
 ### `graph_asymm(x, y, exl, exh, eyl, eyh, ...)` → `TGraphAsymmErrors`
 Same parameters as `graph()` but with independent low/high error bars.
@@ -135,27 +90,75 @@ Same parameters as `graph()` but with independent low/high error bars.
 
 ### `func(expression, xmin, xmax, ...)` → `TF1`
 ```python
-f = func("[0]*exp(-0.5*((x-[1])/[2])^2)",
-         xmin=-5, xmax=5,
-         params=[1.0, 0.0, 1.0],
-         param_names=["A", "#mu", "#sigma"],
-         color="red", 
-         line_style="dashed")
+f =  func(expression = "",
+          xmin = 1.0,
+          xmax = 2.0,
+          params = [],
+          param_names = [],
+          title = "",
+          xlabel = "x",
+          ylabel = "f(x)",
+          color = "red",
+          line_style = "solid",
+          line_width = 2,
+          npx = 1000,
+         )
 ```
 
 ### `func2d(expression, xmin, xmax, ymin, ymax, ...)` → `TF2`
-Same interface extended with `ymin/ymax`, `ylabel`, `zlabel`, `npy`.
+```python
+f2 = func2d(expression = "",
+            xmin = 1.0,
+            xmax = 2.0,
+            ymin = 1.0,
+            ymax = 2.0,
+            params = [],
+            param_names = [],
+            title = "",
+            xlabel = "x",
+            ylabel = "y",
+            zlabel = "f(x,y)",
+            color = "red",
+            line_style = "solid",
+            line_width = 2,
+            npx = 1000,
+            npy = 1000,
+           ) 
+```
 
 ### `func3d(expression, xmin, xmax, ymin, ymax, zmin, zmax, ...)` → `TF3`
-Renders as an isosurface. Extra parameters:
+```python
+f3 = func3d(expression = "",
+            xmin = 1.0,
+            xmax = 2.0,
+            ymin = 1.0,
+            ymax = 2.0,
+            zmin = 1.0,
+            zmax = 2.0,
+            params = [],
+            param_names = [],
+            title = "",
+            xlabel = "x",
+            ylabel = "y",
+            zlabel = "z",
 
-| Parameter | Default | Notes |
-|-----------|---------|-------|
-| `fill_color` | same as `color` | isosurface fill |
-| `fill_alpha` | `0.5` | transparency [0–1] |
-| `line_color` | same as `color` | wireframe edge |
-| `draw_mode` | `"iso"` | `"iso"` `"gl"` `"gl_iso"` `"gl_col"` `"gl_box"` `"fb"` `"bb"` … |
-| `npx/npy/npz` | `30` | sampling resolution |
+            # ── surface appearance 
+            color = "red",
+            fill_color = None,
+            fill_alpha = 0.5,
+            line_color = None,
+            line_style = "solid",
+            line_width = 1,
+
+            # ── draw mode ("iso, "gl", "gl_iso", "gl_col", "gl_box", "fb", "bb")
+            draw_mode = "iso",
+
+            # ── sampling resolution 
+            npx = 30,
+            npy = 30,
+            npz = 30
+           ) 
+```
 
 ---
 
@@ -163,16 +166,34 @@ Renders as an isosurface. Extra parameters:
 
 ### `histogram(data, bins, range, ...)` → `TH1D`
 ```python
-h = histogram(data, bins=80, range=(-5, 5),
-              xlabel="#Delta E [MeV]", color="blue",
-              fill=True, fill_alpha=0.3)
+h = histogram(data = np.ndarray,
+              bins = 50,
+              range = [1.0,5.0],
+              title = "",
+              xlabel = "x",
+              ylabel = "Counts",
+              color = "blue",
+              line_style = "solid",
+              line_width = 2,
+              fill = True,
+              fill_alpha = 0.3,
+             ) 
 ```
 
 ### `histogram2d(x, y, bins_x, bins_y, ...)` → `TH2D`
 ```python
-h2 = histogram2d(px, py, bins_x=60, bins_y=60,
-                 xlabel="p_{x} [GeV/c]", ylabel="p_{y} [GeV/c]",
-                 palette=ROOT.kViridis)
+h2 =  histogram2d(x = np.ndarray,
+                  y = np.ndarray,
+                  bins_x = 40,
+                  bins_y = 40,
+                  range_x = [1.0,5.0],
+                  range_y = [1.0,5.0],
+                  title = "",
+                  xlabel = "x",
+                  ylabel = "y",
+                  zlabel = "Counts",
+                  palette = 1, # todo: explicit names for palette
+                 ) 
 ```
 
 ---
@@ -181,15 +202,28 @@ h2 = histogram2d(px, py, bins_x=60, bins_y=60,
 
 ### `fit(graph_or_hist, func_or_expr, xmin, xmax, ...)` → `TF1`
 ```python
-f = fit(h, "gaus", xmin=-3, xmax=3)
-f = fit(g, my_tf1, options="RQS", print_results=False)
+gf_fit = fit(graph = g, 
+             func = f,
+             xmin = 1.0,
+             xmax = 2.0,
+             params = [],
+             param_names = [],
+             options = "RS",
+             print_results = True,
+             units = None,
+            )
+  
+hf_fit = fit(hist = h, 
+             func = f,
+             xmin = 1.0,
+             xmax = 2.0,
+             params = [],
+             param_names = [],
+             options = "RS",
+             print_results = True,
+             units = None,
+            )
 ```
-
-| Parameter | Default |
-|-----------|---------|
-| `options` | `"RS"` |
-| `print_results` | `True` |
-| `units` | `None` |
 
 ### `print_params(f, units, precision)`
 Print a formatted parameter table for any fitted `TF1`.
@@ -201,48 +235,49 @@ Print a formatted parameter table for any fitted `TF1`.
 ### `draw(objects, labels, ...)` → `(TCanvas, TLegend)`
 
 ```python
-c, leg = draw([h, f],
-              labels=["Data", "Gaussian fit"],
-              xlabel="m_{#pi#pi} [MeV/c^{2}]",
-              ylabel="Events / 10 MeV",
-              fit_stats=True,
-              save="mass_fit.pdf")
+c, leg = draw(objects = [h,f,g,...],
+              labels = [],
+              xlabel = None,
+              ylabel = None,
+              xrange = [1.0,5.0],
+              yrange = [1.0,5.0],
+              options = ["HIST", "dotted", "AP",...],
+              width = 900,
+              height = 600,
+              log_x = False,
+              log_y = False,
+
+              # ── legend ──── accept "top_right", "top_left", "bottom_right", "bottom_left", "top_center" and coord.
+              legend_pos = "top_right", 
+              legend_width = 0.25,
+              legend_row_height = 0.045,
+              legend_ncols = 1,
+              legend_text_size = 0.038,
+              legend_margin = 0.25,
+              legend_border = 0,
+              legend_fill_alpha = 0.0,
+
+              # ── stats 
+              hist_stats = False,
+              hist_stats_precision = 3,
+              hist_stats_show_mean = True,
+              hist_stats_show_std = True,
+              hist_stats_show_counts = True,
+              hist_stats_mean_label = "Mean",
+              hist_stats_std_label = "Std Dev",
+              hist_stats_counts_label = "Counts",
+              fit_stats = False,
+              fit_stats_precision = 3,
+              fit_stats_show_chi2 = True,
+              fit_stats_show_params = True,
+              fit_stats_show_errors = True,
+              fit_stats_chi2_label = "#chi^{2} / NDF",
+              fit_stats_param_names = [],
+              fit_stats_units = [],
+              save = "canvas.pdf",
+             )
 ```
 
-**Canvas**
-
-| Parameter | Default |
-|-----------|---------|
-| `width / height` | `900 / 600` |
-| `log_x / log_y` | `False` |
-| `xrange / yrange` | `None` |
-
-**Draw options** — pass a single string (global) or a list (per-object):
-- `None` → auto-detect from object type
-- Line-style name (`"dotted"`) → apply in-place
-- Any ROOT string (`"AP"`, `"HIST"`, `"COLZ"`) → verbatim; `SAME` appended automatically
-
-**Legend**
-
-| Parameter | Default |
-|-----------|---------|
-| `legend_pos` | `"top_right"` |
-| `legend_width` | `0.25` |
-| `legend_ncols` | `1` |
-| `legend_text_size` | `0.038` |
-| `legend_fill_alpha` | `0.0` |
-
-`legend_pos` accepts `"top_right"` `"top_left"` `"bottom_right"` `"bottom_left"` `"top_center"` or explicit `(x1, y1, x2, y2)` NDC.
-
-**Histogram stats in legend** (`hist_stats=True`)
-Shows mean, std dev, entry count for each `TH1` — toggle individually with `hist_stats_show_mean/std/counts`.
-
-**Fit stats in legend** (`fit_stats=True`)
-Shows χ²/NDF and all parameters ± errors for each `TF1` — toggle with `fit_stats_show_chi2/params/errors`.
-
----
-
-## Legend (manual)
 
 ### `make_legend(objects, labels, pos, ...)` → `TLegend`
 Lower-level helper for legends outside a `draw()` call.
@@ -266,101 +301,31 @@ load_rows(filepath, [row1, row2, ...])      # → list[np.ndarray]
 
 ### `map_from_arrays(col, row, values, ...)` → `TH2D`
 Build a pixel/detector map from three equal-length arrays. Bin edges computed automatically from unique coordinate values.
+```python
+m =  map_from_arrays(col = x,
+                     row = y,
+                     values = z,
+                     xlabel = "x",
+                     ylabel = "y",
+                     zlabel = "Value",
+                     palette = None,
+                    )
+```
 
 ### `map_from_file(filepath, col_col, col_row, col_val, ...)` → `TH2D`
 Convenience wrapper — reads col/row/value arrays from a delimited file and calls `map_from_arrays`.
-
 ```python
-h = map_from_file("scan.txt", col_col=0, col_row=1, col_val=2,
-                  xlabel="Strip", ylabel="Channel",
-                  zlabel="Efficiency")
-draw([h])
+m = map_from_file(
+    filepath = "",
+    col_col = 0, # also header of column as string
+    col_row = 1, # also header of column as string
+    col_val = 2, # also header of column as string
+    sep = r"\s+",
+    xlabel = "x",
+    ylabel = "y",
+    zlabel = "Value",
+    palette = None,
+) 
 ```
 
----
 
-# Examples
-In c++
-
-```c++
-#include <iostream>
-#include <fstream>
-#include "TH1D.h"
-#include "TApplication.h"
-#include "TCanvas.h"
-#include "TF1.h"        
-#include "TF2.h"        
-#include "TLegend.h"   
-using namespace std;
-
-int main() {
-  TApplication app("app",0,0);
-
-  // setup histogram
-  TH1D *hist = new TH1D("hist","Invariant mass distribution",100,1.3,5);
-  
-  // read from file
-  double readvalue;
-  ifstream infile("jpsimass.txt");
-  while(infile >> readvalue){
-      hist->Fill(readvalue);
-  }
-  
-  // fit
-  TF1 *modelfit = new TF1("modelfit","gaus(0)+gaus(3)+pol1(6)",1,5);
-  modelfit->SetNpx(5000);
-  modelfit->SetParameters(6000,3.1,0.14,1500,3.6,0.1,48200,-1621);
-  modelfit->SetParLimits(4,3.4,3.7);
-
-  for(int i=0; i<8; i++){
-    hist->Fit(modelfit,"0");
-  }
-
-  // canvas
-  TCanvas *can = new TCanvas("can","can",600,400);
-  can->SetMargin(0.15,0.05,0.1,0.1);
-  can->cd();
-  hist->GetXaxis()->SetTitle("m_{#mu^{+}#mu^{-}}");
-  hist->GetYaxis()->SetTitle("counts");
-
-  // draw
-  hist->Draw("E");
-  modelfit->Draw("same");
-
-
-
-  app.Run();
-  return 0;
-}
-```
-
-In Python + root_utils:
-```python
-from root_utils import *
-
-# Style per latex
-#set_style()
-
-data = load_row("jpsimass.txt")
-h = histogram(data,bins=100,title="Conteggi")
-
-
-f = func(expression="gaus(0)+pol1(3)",
-         params=[50000,3.1,1,50000,-2000],
-         param_names=["A","#mu","#sigma","q","m"],
-         xmin=1,xmax=5)
-
-fit_f = fit(h,f)
-
-
-c, leg = draw(objects=[h,fit_f], 
-     labels=["Counts", "Fit"],
-     options=["hist","dashed"],
-     hist_stats=True,
-     #fit_stats=True,
-     save="interpolazione.pdf",
-     legend_border=2,
-     legend_width=0.3,
-     legend_fill_alpha=1,)
-```
-![interpolazione](/esempi/interpolazione/interpolazione.png)
