@@ -15,399 +15,267 @@ arrays and human-readable names for colors, markers, and line styles.
 - numpy
 - pandas
 
----
 
-## Quick start
+## Setup
 
 ```python
 from root_utils import *
-import numpy as np
-
-set_style()
-
-data = np.random.normal(0, 1, 10000)
-h = histogram(data, bins=60, range=(-4, 4),
-              xlabel="#Delta E [MeV]", ylabel="Counts / 0.1 MeV",
-              color="blue")
-f = fit(h, "gaus", xmin=-3, xmax=3)
-draw([h, f],
-     labels=["Simulation", "Gaussian fit"],
-     fit_stats=True,
-     save="quickstart.pdf")
+set_style()  # apply Times font, no stat box, clean margins
 ```
 
 ---
 
-## Text and labels — ROOT TLatex syntax
+## Style
 
-Every text field in the module (axis titles, histogram titles, parameter names,
-legend labels) is passed through `latex()`, which only strips `$` characters.
-Write ROOT TLatex directly:
+### `set_style()`
+Apply global publication-ready style (Times New Roman, no stat/title box, tick marks on all sides).
 
-| What you want | ROOT TLatex string |
-|---|---|
-| Greek letter μ | `#mu` |
-| Subscript p_T | `p_{T}` |
-| Superscript x² | `x^{2}` |
-| Fraction a/b | `#frac{a}{b}` |
-| Square root | `#sqrt{x}` |
-| Plus-minus | `#pm` |
-| Chi squared | `#chi^{2}` |
-| Italic text | `#it{text}` |
-| Bold text | `#bf{text}` |
+
+### Colors · `color(name)`
+Resolve a name to a ROOT color code. Pass anywhere a `color=` parameter is accepted.
+
+```
+"black"  "white"  "red"  "dark_red"  "light_red"
+"blue"   "dark_blue"  "light_blue"  "cyan"
+"green"  "dark_green"  "light_green"
+"orange"  "yellow"  "magenta"  "violet"  "gray"  "dark_gray"
+```
+
+Raw ROOT integers (e.g. `ROOT.kRed + 3`) are always accepted too.
+
+
+### Line styles · `line_style(style)`
+
+```
+"solid"  "dashed"  "dotted"  "dash_dot"  "dash_dot_dot"
+"long_dashed"  "long_dash_dot"  "long_dash_dot_dot"
+```
+
+### Marker styles · `marker_style(style)`
+
+```
+# filled
+"circle"  "square"  "triangle_up"  "triangle_down"  "star"  "diamond"
+# open
+"open_circle"  "open_square"  "open_triangle_up"  "open_triangle_down"  "open_star"  "open_diamond"
+# simple
+"dot"  "plus"  "asterisk"  "cross"
+```
+
+### TLatex · `latex(text)`
+Pass-through that strips `$` characters — copy-paste LaTeX-wrapped TLatex strings safely.
 
 ```python
-h = histogram(data,
-              xlabel="m_{#pi#pi} [MeV/c^{2}]",
-              ylabel="Events / 5 MeV")
-
-f = func("gaus", -5, 5,
-         param_names=["A", "#mu", "#sigma"])
-
-draw([h, f],
-     labels=["Data #sqrt{s} = 13 TeV", "Gaussian fit #pm 1#sigma"])
+latex("#mu #pm #sigma")       # '#mu #pm #sigma'
+latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
+```
+```
+"black"  "white"  "red"  "dark_red"  "light_red"
+"blue"   "dark_blue"  "light_blue"  "cyan"
+"green"  "dark_green"  "light_green"
+"orange"  "yellow"  "magenta"  "violet"  "gray"  "dark_gray"
 ```
 
----
+Raw ROOT integers (e.g. `ROOT.kRed + 3`) are always accepted too.
 
-## Global style
+
+### Line styles · `line_style(style)`
+
+```
+"solid"  "dashed"  "dotted"  "dash_dot"  "dash_dot_dot"
+"long_dashed"  "long_dash_dot"  "long_dash_dot_dot"
+```
+
+### Marker styles · `marker_style(style)`
+
+```
+# filled
+"circle"  "square"  "triangle_up"  "triangle_down"  "star"  "diamond"
+# open
+"open_circle"  "open_square"  "open_triangle_up"  "open_triangle_down"  "open_star"  "open_diamond"
+# simple
+"dot"  "plus"  "asterisk"  "cross"
+```
+
+
+### TLatex · `latex(text)`
+Pass-through that strips `$` characters — copy-paste LaTeX-wrapped TLatex strings safely.
 
 ```python
-set_style()
+latex("#mu #pm #sigma")       # '#mu #pm #sigma'
+latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
 ```
-
-Applies a publication-ready style: Times New Roman font, no statistics box,
-no title box, tick marks on all four sides, white background, and clean margins.
-Call once at the start of every script.
-
----
-
-## Colors
-
-Pass a name string or a raw ROOT integer to any `color` parameter.
-
-| Name | Appearance |
-|---|---|
-| `"black"`, `"white"` | — |
-| `"red"`, `"dark_red"`, `"light_red"` | — |
-| `"blue"`, `"dark_blue"`, `"light_blue"` | — |
-| `"green"`, `"dark_green"`, `"light_green"` | — |
-| `"cyan"`, `"orange"`, `"yellow"` | — |
-| `"magenta"`, `"violet"` | — |
-| `"gray"`, `"dark_gray"` | — |
-
-Raw ROOT integers also work: `color=ROOT.kRed+3`.
-
----
-
-## Line styles
-
-Pass a name string or a ROOT integer to any `line_style` parameter.
-
-| Name | Aliases | ROOT code |
-|---|---|---|
-| `"solid"` | — | 1 |
-| `"dashed"` | `"dash"` | 2 |
-| `"dotted"` | `"dot"` | 3 |
-| `"dash_dot"` | `"dashdot"`, `"dot_dash"` | 4 |
-| `"dash_dot_dot"` | `"dot_dot_dash"` | 5 |
-| `"long_dashed"` | — | 6 |
-| `"long_dash_dot"` | — | 7 |
-| `"long_dash_dot_dot"` | — | 8 |
-
----
-
-## Marker styles
-
-Pass a name string or a ROOT integer to any `marker` parameter.
-
-**Filled:** `"circle"`, `"square"`, `"triangle_up"`, `"triangle_down"`,
-`"star"`, `"diamond"`, `"cross_circle"`
-
-**Open:** `"open_circle"`, `"open_square"`, `"open_triangle_up"`,
-`"open_triangle_down"`, `"open_star"`, `"open_diamond"`
-
-**Simple:** `"dot"`, `"plus"`, `"asterisk"`, `"cross"` / `"x"`
 
 ---
 
 ## Graphs
 
-### `graph` — TGraphErrors (symmetric errors)
-
+### `graph(x, y, ex, ey, ...)` → `TGraphErrors`
 ```python
-g = graph(x, y,
-          ex=None, ey=dy,           # optional error arrays
-          xlabel="t [ns]",
-          ylabel="V [mV]",
-          color="blue",
-          marker="circle",          # or any marker name / ROOT integer
-          marker_size=1.2,
-          line_style="solid",
-          line_width=2)
+g = graph(x=x, 
+          y=y, ey=dy,
+          xlabel="t [ns]", ylabel="V [mV]",
+          color="red", marker="circle")
 ```
 
-### `graph_asymm` — TGraphAsymmErrors (independent low/high errors)
+| Parameter | Default |
+|-----------|---------|
+| `color` | `"blue"` |
+| `marker` | `"circle"` |
+| `marker_size` | `1.2` |
+| `line_style` | `"solid"` |
+| `line_width` | `2` |
 
-```python
-g = graph_asymm(x, y,
-                eyl=err_low, eyh=err_high,
-                color="dark_green",
-                marker="open_square")
-```
+### `graph_asymm(x, y, exl, exh, eyl, eyh, ...)` → `TGraphAsymmErrors`
+Same parameters as `graph()` but with independent low/high error bars.
 
 ---
 
-## Functions
+## Functions (TF1 / TF2 / TF3)
 
-### `func` — TF1 (1D)
-
+### `func(expression, xmin, xmax, ...)` → `TF1`
 ```python
 f = func("[0]*exp(-0.5*((x-[1])/[2])^2)",
          xmin=-5, xmax=5,
-         params=[100.0, 0.0, 1.0],
+         params=[1.0, 0.0, 1.0],
          param_names=["A", "#mu", "#sigma"],
-         color="red",
-         line_style="dashed",
-         npx=2000)           # increase for sharp peaks
+         color="red", 
+         line_style="dashed")
 ```
 
-Built-in ROOT named functions also work: `"gaus"`, `"pol2"`, `"expo"`, etc.
+### `func2d(expression, xmin, xmax, ymin, ymax, ...)` → `TF2`
+Same interface extended with `ymin/ymax`, `ylabel`, `zlabel`, `npy`.
 
-### `func2d` — TF2 (2D surface)
+### `func3d(expression, xmin, xmax, ymin, ymax, zmin, zmax, ...)` → `TF3`
+Renders as an isosurface. Extra parameters:
 
-```python
-f = func2d("sin(x)*cos(y)",
-           xmin=-3.14, xmax=3.14,
-           ymin=-3.14, ymax=3.14,
-           xlabel="x [rad]", ylabel="y [rad]", zlabel="Amplitude")
-draw([f])
-```
-
-### `func3d` — TF3 (3D isosurface)
-
-```python
-f = func3d("exp(-(x*x+y*y+z*z)/(2*[0]*[0]))",
-           -4, 4, -4, 4, -4, 4,
-           params=[1.0], param_names=["#sigma"],
-           color="blue",
-           fill_alpha=0.4,      # 0 = invisible, 1 = opaque
-           draw_mode="iso",     # or "iso_fb", "bb", "gl", ...
-           npx=40, npy=40, npz=40)
-draw([f], labels=["Gaussian sphere"])
-```
-
-**`draw_mode` options:** `"iso"` (default), `"iso_fb"`, `"iso_bb"`, `"fb"`,
-`"bb"`, `"gl"`, `"gl_iso"`, `"gl_col"`, `"gl_box"`, `"tf3"`.
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| `fill_color` | same as `color` | isosurface fill |
+| `fill_alpha` | `0.5` | transparency [0–1] |
+| `line_color` | same as `color` | wireframe edge |
+| `draw_mode` | `"iso"` | `"iso"` `"gl"` `"gl_iso"` `"gl_col"` `"gl_box"` `"fb"` `"bb"` … |
+| `npx/npy/npz` | `30` | sampling resolution |
 
 ---
 
 ## Histograms
 
-### `histogram` — TH1D
-
+### `histogram(data, bins, range, ...)` → `TH1D`
 ```python
-h = histogram(data,
-              bins=80,
-              range=(-5, 5),
-              xlabel="#Delta p [MeV/c]",
-              ylabel="Counts / 0.125 MeV/c",
-              color="blue",
-              fill=True,
-              fill_alpha=0.3)
+h = histogram(data, bins=80, range=(-5, 5),
+              xlabel="#Delta E [MeV]", color="blue",
+              fill=True, fill_alpha=0.3)
 ```
 
-### `histogram2d` — TH2D
-
+### `histogram2d(x, y, bins_x, bins_y, ...)` → `TH2D`
 ```python
-h2 = histogram2d(px, py,
-                 bins_x=60, bins_y=60,
-                 range_x=(-3, 3), range_y=(-3, 3),
-                 xlabel="p_{x} [GeV/c]",
-                 ylabel="p_{y} [GeV/c]",
-                 zlabel="Counts",
-                 palette=ROOT.kViridis)   # optional; default is kBird
-draw([h2])
+h2 = histogram2d(px, py, bins_x=60, bins_y=60,
+                 xlabel="p_{x} [GeV/c]", ylabel="p_{y} [GeV/c]",
+                 palette=ROOT.kViridis)
 ```
 
 ---
 
 ## Fitting
 
-### `fit`
-
+### `fit(graph_or_hist, func_or_expr, xmin, xmax, ...)` → `TF1`
 ```python
-# Fit with a named formula string
 f = fit(h, "gaus", xmin=-3, xmax=3)
-
-# Fit with a pre-built TF1
-my_f = func("[0]*(1 + [1]*cos(x))", 0, 6.28, params=[1.0, 0.5])
-f    = fit(g, my_f, options="RQS", print_results=False)
+f = fit(g, my_tf1, options="RQS", print_results=False)
 ```
 
-**Common `options` flags:**
+| Parameter | Default |
+|-----------|---------|
+| `options` | `"RS"` |
+| `print_results` | `True` |
+| `units` | `None` |
 
-| Flag | Effect |
-|---|---|
-| `"R"` | Use function range |
-| `"S"` | Save fit result object |
-| `"Q"` | Quiet mode (suppress ROOT output) |
-| `"L"` | Log-likelihood fit |
-| `"W"` | Ignore point errors |
-
-### `print_params`
-
-```python
-print_params(f, units=["", "MeV/c^{2}", "MeV/c^{2}"], precision=4)
-```
+### `print_params(f, units, precision)`
+Print a formatted parameter table for any fitted `TF1`.
 
 ---
 
 ## Drawing
 
-`draw()` is the central function.  It creates a canvas, draws all objects in
-the correct order, optionally adds a legend with statistics, and saves the result.
+### `draw(objects, labels, ...)` → `(TCanvas, TLegend)`
 
 ```python
-canvas, legend = draw(
-    objects,                      # list of ROOT objects
-    labels=["label1", "label2"],  # triggers legend creation
-    xlabel="x axis title",
-    ylabel="y axis title",
-    xrange=(0, 10),               # visible x range
-    yrange=(0, 500),              # visible y range
-    options="AP",                 # global draw option (or list, see below)
-    width=900, height=600,
-    log_x=False, log_y=False,
-    save="output.pdf",
-)
+c, leg = draw([h, f],
+              labels=["Data", "Gaussian fit"],
+              xlabel="m_{#pi#pi} [MeV/c^{2}]",
+              ylabel="Events / 10 MeV",
+              fit_stats=True,
+              save="mass_fit.pdf")
 ```
 
-### Per-object draw options
+**Canvas**
 
-Pass a list instead of a string to control each object individually:
+| Parameter | Default |
+|-----------|---------|
+| `width / height` | `900 / 600` |
+| `log_x / log_y` | `False` |
+| `xrange / yrange` | `None` |
 
-```python
-draw([g1, g2, h2d], options=["AP", "dashed", "COLZ"])
-#                              ^      ^         ^
-#                              |      |         raw ROOT draw string
-#                              |      line-style shorthand (applied in-place)
-#                              raw ROOT draw string
-```
+**Draw options** — pass a single string (global) or a list (per-object):
+- `None` → auto-detect from object type
+- Line-style name (`"dotted"`) → apply in-place
+- Any ROOT string (`"AP"`, `"HIST"`, `"COLZ"`) → verbatim; `SAME` appended automatically
 
-Each list element can be:
-- `None` — auto-detect from object type
-- A line-style name (`"dotted"`, `"dashed"`, …) — sets `SetLineStyle` and draws normally
-- Any ROOT draw string (`"AP"`, `"HIST"`, `"COLZ"`, …) — used verbatim
+**Legend**
 
-### Legend options
+| Parameter | Default |
+|-----------|---------|
+| `legend_pos` | `"top_right"` |
+| `legend_width` | `0.25` |
+| `legend_ncols` | `1` |
+| `legend_text_size` | `0.038` |
+| `legend_fill_alpha` | `0.0` |
 
-```python
-draw([h, f], labels=["Data", "Fit"],
-     legend_pos="top_right",       # or "top_left", "bottom_right", etc.
-     legend_width=0.30,
-     legend_row_height=0.050,      # increase for more row spacing
-     legend_ncols=1,
-     legend_text_size=0.038,
-     legend_margin=0.25,
-     legend_border=1,              # 0 = no border
-     legend_fill_alpha=1.0)        # 0 = transparent, 1 = opaque white
+`legend_pos` accepts `"top_right"` `"top_left"` `"bottom_right"` `"bottom_left"` `"top_center"` or explicit `(x1, y1, x2, y2)` NDC.
 
-# Or provide exact NDC coordinates
-draw([h], labels=["Data"],
-     legend_pos=(0.60, 0.70, 0.90, 0.88))
-```
+**Histogram stats in legend** (`hist_stats=True`)
+Shows mean, std dev, entry count for each `TH1` — toggle individually with `hist_stats_show_mean/std/counts`.
 
-### Histogram statistics in legend
-
-```python
-draw([h], labels=["MC"],
-     hist_stats=True,
-     hist_stats_show_mean=True,
-     hist_stats_show_std=True,
-     hist_stats_show_counts=True,
-     hist_stats_precision=3)
-```
-
-### Fit statistics in legend
-
-```python
-draw([h, f], labels=["Data", "Gaussian"],
-     fit_stats=True,
-     fit_stats_show_chi2=True,
-     fit_stats_show_params=True,
-     fit_stats_show_errors=True,
-     fit_stats_precision=3,
-     fit_stats_units=["", "MeV", "MeV"])
-```
+**Fit stats in legend** (`fit_stats=True`)
+Shows χ²/NDF and all parameters ± errors for each `TF1` — toggle with `fit_stats_show_chi2/params/errors`.
 
 ---
 
-## Legend (standalone)
+## Legend (manual)
 
-Use `make_legend` when you need a legend outside a `draw()` call, e.g. on a
-multi-pad canvas:
-
-```python
-leg = make_legend([g1, g2, h],
-                  ["Signal", "Background", "Data"],
-                  pos="top_right",
-                  width=0.30,
-                  row_height=0.05,
-                  fill_alpha=0.8,
-                  border=1)
-leg.Draw()
-```
+### `make_legend(objects, labels, pos, ...)` → `TLegend`
+Lower-level helper for legends outside a `draw()` call.
 
 ---
 
-## Detector / pixel maps
-
-### `map_from_arrays`
+## I/O
 
 ```python
-h = map_from_arrays(col, row, charge,
-                    xlabel="Column",
-                    ylabel="Row",
-                    zlabel="Charge [e^{-}]",
-                    palette=ROOT.kViridis)
-draw([h])
+load_column(filepath, column, sep)          # → np.ndarray
+load_columns(filepath, [col1, col2, ...])   # → list[np.ndarray]
+load_row(filepath, row, sep)                # → np.ndarray
+load_rows(filepath, [row1, row2, ...])      # → list[np.ndarray]
 ```
 
-Bin edges are computed automatically from the unique coordinate values, so
-non-uniform pixel spacing is handled correctly.
+`column` / `row` accept zero-based integer indices or string column names. Default separator: whitespace.
 
-### `map_from_file`
+---
+
+## Detector Maps
+
+### `map_from_arrays(col, row, values, ...)` → `TH2D`
+Build a pixel/detector map from three equal-length arrays. Bin edges computed automatically from unique coordinate values.
+
+### `map_from_file(filepath, col_col, col_row, col_val, ...)` → `TH2D`
+Convenience wrapper — reads col/row/value arrays from a delimited file and calls `map_from_arrays`.
 
 ```python
-h = map_from_file("scan.txt",
-                  col_col=0, col_row=1, col_val=2,
-                  xlabel="Strip",
-                  ylabel="Channel",
+h = map_from_file("scan.txt", col_col=0, col_row=1, col_val=2,
+                  xlabel="Strip", ylabel="Channel",
                   zlabel="Efficiency")
 draw([h])
 ```
-
----
-
-## I/O utilities
-
-```python
-# Single column by index or name
-x  = load_column("data.txt", 0)
-vy = load_column("data.csv", "voltage", sep=",")
-
-# Multiple columns at once
-x, y, ey = load_columns("data.txt", [0, 1, 2])
-
-# Single row (useful when each line is a spectrum)
-spectrum = load_row("spectra.txt", row=3)
-
-# Multiple rows
-row0, row5 = load_rows("matrix.txt", [0, 5])
-```
-
-Default separator is `r"\s+"` (any whitespace).  Pass `sep=","` for CSV files.
 
 ---
 
