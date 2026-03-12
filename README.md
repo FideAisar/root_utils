@@ -6,10 +6,7 @@ High-level PyROOT plotting utilities for physics data analysis (vibe-coded).
 eliminate boilerplate: one import, one style call, then work directly with numpy
 arrays and human-readable names for colors, markers, and line styles.
 
----
-
 ## Requirements
-
 - Python ≥ 3.10
 - ROOT (with PyROOT enabled)
 - numpy
@@ -17,16 +14,12 @@ arrays and human-readable names for colors, markers, and line styles.
 
 
 ## Setup
-
 ```python
 from root_utils import *
 set_style()  # apply Times font, no stat box, clean margins
 ```
 
----
-
 ## Style
-
 ### `set_style()`
 Apply global publication-ready style (Times New Roman, no stat/title box, tick marks on all sides).
 
@@ -60,11 +53,8 @@ latex("#mu #pm #sigma")       # '#mu #pm #sigma'
 latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
 ```
 
----
-
 ## Graphs
-
-### `graph(x, y, ex, ey, ...)` → `TGraphErrors`
+### `graph()` → `TGraphErrors`
 ```python
 g = graph(x = np.ndarray,
           y = np.ndarray,
@@ -81,14 +71,28 @@ g = graph(x = np.ndarray,
          )
 ```
 
-### `graph_asymm(x, y, exl, exh, eyl, eyh, ...)` → `TGraphAsymmErrors`
+### `graph_asymm()` → `TGraphAsymmErrors`
 Same parameters as `graph()` but with independent low/high error bars.
-
----
+```python
+ga = graph_asymm(x = np.ndarray,
+                 y = np.ndarray,
+                 exl = np.ndarray,
+                 exh = np.ndarray,
+                 eyl = np.ndarray,
+                 eyh = np.ndarray,
+                 title= "",
+                 xlabel = "x",
+                 ylabel= "y",
+                 color = "blue",
+                 marker = "circle",
+                 marker_size = 1.2,
+                 line_style = "solid",
+                 line_width = 2,
+                ) 
+```
 
 ## Functions (TF1 / TF2 / TF3)
-
-### `func(expression, xmin, xmax, ...)` → `TF1`
+### `func()` → `TF1`
 ```python
 f =  func(expression = "",
           xmin = 1.0,
@@ -105,7 +109,7 @@ f =  func(expression = "",
          )
 ```
 
-### `func2d(expression, xmin, xmax, ymin, ymax, ...)` → `TF2`
+### `func2d()` → `TF2`
 ```python
 f2 = func2d(expression = "",
             xmin = 1.0,
@@ -126,7 +130,7 @@ f2 = func2d(expression = "",
            ) 
 ```
 
-### `func3d(expression, xmin, xmax, ymin, ymax, zmin, zmax, ...)` → `TF3`
+### `func3d()` → `TF3`
 ```python
 f3 = func3d(expression = "",
             xmin = 1.0,
@@ -160,10 +164,7 @@ f3 = func3d(expression = "",
            ) 
 ```
 
----
-
 ## Histograms
-
 ### `histogram(data, bins, range, ...)` → `TH1D`
 ```python
 h = histogram(data = np.ndarray,
@@ -196,10 +197,7 @@ h2 =  histogram2d(x = np.ndarray,
                  ) 
 ```
 
----
-
 ## Fitting
-
 ### `fit(graph_or_hist, func_or_expr, xmin, xmax, ...)` → `TF1`
 ```python
 gf_fit = fit(graph = g, 
@@ -228,11 +226,8 @@ hf_fit = fit(hist = h,
 ### `print_params(f, units, precision)`
 Print a formatted parameter table for any fitted `TF1`.
 
----
-
 ## Drawing
-
-### `draw(objects, labels, ...)` → `(TCanvas, TLegend)`
+### `draw()` → `(TCanvas, TLegend)`
 
 ```python
 c, leg = draw(objects = [h,f,g,...],
@@ -278,14 +273,23 @@ c, leg = draw(objects = [h,f,g,...],
              )
 ```
 
-
-### `make_legend(objects, labels, pos, ...)` → `TLegend`
+### `make_legend()` → `TLegend`
 Lower-level helper for legends outside a `draw()` call.
-
----
+```python
+leg = make_legend(objects = [h,f,g,...],
+                  labels = [],
+                  pos = "top_right",
+                  ncols = 1,
+                  text_size = 0.038,
+                  width = 0.25,
+                  row_height = 0.045,
+                  margin = 0.30,
+                  border = 0,
+                  fill_alpha = 0.0,
+                 ) 
+```
 
 ## I/O
-
 ```python
 load_column(filepath, column, sep)          # → np.ndarray
 load_columns(filepath, [col1, col2, ...])   # → list[np.ndarray]
@@ -295,11 +299,8 @@ load_rows(filepath, [row1, row2, ...])      # → list[np.ndarray]
 
 `column` / `row` accept zero-based integer indices or string column names. Default separator: whitespace.
 
----
-
 ## Detector Maps
-
-### `map_from_arrays(col, row, values, ...)` → `TH2D`
+### `map_from_arrays()` → `TH2D`
 Build a pixel/detector map from three equal-length arrays. Bin edges computed automatically from unique coordinate values.
 ```python
 m =  map_from_arrays(col = x,
@@ -312,7 +313,7 @@ m =  map_from_arrays(col = x,
                     )
 ```
 
-### `map_from_file(filepath, col_col, col_row, col_val, ...)` → `TH2D`
+### `map_from_file()` → `TH2D`
 Convenience wrapper — reads col/row/value arrays from a delimited file and calls `map_from_arrays`.
 ```python
 m = map_from_file(
