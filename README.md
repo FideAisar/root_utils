@@ -6,18 +6,20 @@ High-level PyROOT plotting utilities for physics data analysis (vibe-coded).
 eliminate boilerplate: one import, one style call, then work directly with numpy
 arrays and human-readable names for colors, markers, and line styles.
 
-## Requirements
+### Requirements
 - Python ≥ 3.10
 - ROOT (with PyROOT enabled)
 - numpy
 - pandas
 
 
-## Setup
+### Setup
 ```python
 from root_utils import *
 set_style()  # apply Times font, no stat box, clean margins
 ```
+
+---
 
 ## Style
 ### `set_style()`
@@ -52,6 +54,8 @@ Pass-through that strips `$` characters — copy-paste LaTeX-wrapped TLatex stri
 latex("#mu #pm #sigma")       # '#mu #pm #sigma'
 latex("p_{T} [GeV/c^{2}]")   # 'p_{T} [GeV/c^{2}]'
 ```
+
+---
 
 ## Graphs
 ### `graph()` → `TGraphErrors`
@@ -164,8 +168,10 @@ f3 = func3d(expression = "",
            ) 
 ```
 
+---
+
 ## Histograms
-### `histogram(data, bins, range, ...)` → `TH1D`
+### `histogram()` → `TH1D`
 ```python
 h = histogram(data = np.ndarray,
               bins = 50,
@@ -181,7 +187,7 @@ h = histogram(data = np.ndarray,
              ) 
 ```
 
-### `histogram2d(x, y, bins_x, bins_y, ...)` → `TH2D`
+### `histogram2d()` → `TH2D`
 ```python
 h2 =  histogram2d(x = np.ndarray,
                   y = np.ndarray,
@@ -197,8 +203,37 @@ h2 =  histogram2d(x = np.ndarray,
                  ) 
 ```
 
+### `map_from_arrays()` → `TH2D`
+Build a pixel/detector map from three equal-length arrays. Bin edges computed automatically from unique coordinate values.
+```python
+m =  map_from_arrays(col = x,
+                     row = y,
+                     values = z,
+                     xlabel = "x",
+                     ylabel = "y",
+                     zlabel = "Value",
+                     palette = None,
+                    )
+```
+
+### `map_from_file()` → `TH2D`
+Convenience wrapper — reads col/row/value arrays from a delimited file and calls `map_from_arrays`.
+```python
+m = map_from_file(
+    filepath = "",
+    col_col = 0, # also header of column as string
+    col_row = 1, # also header of column as string
+    col_val = 2, # also header of column as string
+    sep = r"\s+",
+    xlabel = "x",
+    ylabel = "y",
+    zlabel = "Value",
+    palette = None,
+) 
+```
+
 ## Fitting
-### `fit(graph_or_hist, func_or_expr, xmin, xmax, ...)` → `TF1`
+### `fit()` → `TF1`
 ```python
 gf_fit = fit(graph = g, 
              func = f,
@@ -225,6 +260,8 @@ hf_fit = fit(hist = h,
 
 ### `print_params(f, units, precision)`
 Print a formatted parameter table for any fitted `TF1`.
+
+---
 
 ## Drawing
 ### `draw()` → `(TCanvas, TLegend)`
@@ -299,34 +336,10 @@ load_rows(filepath, [row1, row2, ...])      # → list[np.ndarray]
 
 `column` / `row` accept zero-based integer indices or string column names. Default separator: whitespace.
 
-## Detector Maps
-### `map_from_arrays()` → `TH2D`
-Build a pixel/detector map from three equal-length arrays. Bin edges computed automatically from unique coordinate values.
-```python
-m =  map_from_arrays(col = x,
-                     row = y,
-                     values = z,
-                     xlabel = "x",
-                     ylabel = "y",
-                     zlabel = "Value",
-                     palette = None,
-                    )
-```
 
-### `map_from_file()` → `TH2D`
-Convenience wrapper — reads col/row/value arrays from a delimited file and calls `map_from_arrays`.
-```python
-m = map_from_file(
-    filepath = "",
-    col_col = 0, # also header of column as string
-    col_row = 1, # also header of column as string
-    col_val = 2, # also header of column as string
-    sep = r"\s+",
-    xlabel = "x",
-    ylabel = "y",
-    zlabel = "Value",
-    palette = None,
-) 
-```
+
+
+
+
 
 
