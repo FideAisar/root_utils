@@ -15,7 +15,7 @@ Typical usage
     set_style()                          # apply Times-font, no-stat-box style
 
     h = histogram(data, xlabel="#mu [GeV]", ylabel="Counts / 0.5 GeV")
-    f = fit(h, "gaus", -3, 3)
+    f = fit(h, "gaus", range=(-3, 3))
     draw([h, f], labels=["Data", "Gaussian fit"], fit_stats=True, save="plot.pdf")
 """
 
@@ -292,7 +292,7 @@ def set_style() -> None:
     - Tick marks on all four sides of the frame (``PadTickX/Y=1``).
     - Canvas and pad backgrounds set to white (color 0).
     - Pad margins: left 0.15, bottom 0.15, right 0.05, top 0.05.
-    - Legend border hidden, fill transparent.
+    - Legend border size 1, fill opaque white.
 
     Call this once at the top of your script, before creating any objects.
 
@@ -326,8 +326,8 @@ def set_style() -> None:
     ROOT.gStyle.SetPadRightMargin(0.05)
     ROOT.gStyle.SetPadTopMargin(0.05)
 
-    ROOT.gStyle.SetLegendBorderSize(0)
-    ROOT.gStyle.SetLegendFillColor(0)
+    ROOT.gStyle.SetLegendBorderSize(1)
+    ROOT.gStyle.SetLegendFillColor(ROOT.kWhite)
     ROOT.gStyle.SetLegendFont(font)
     ROOT.gStyle.SetLegendTextSize(0.04)
 
@@ -492,8 +492,7 @@ def graph_asymm(
 
 def func(
     expression: str,
-    xmin: float,
-    xmax: float,
+    range: tuple[float, float],
     params: list[float] = None,
     param_names: list[str] = None,
     title: str = "",
@@ -516,8 +515,8 @@ def func(
     expression : str
         ROOT TFormula string, e.g. ``"gaus"``, ``"[0]*exp(-[1]*x)"``,
         ``"pol2"``.
-    xmin, xmax : float
-        Function domain.
+    range : (float, float)
+        Function domain ``(xmin, xmax)``.
     params : list[float], optional
         Initial parameter values for ``[0]``, ``[1]``, ...
     param_names : list[str], optional
@@ -542,11 +541,12 @@ def func(
     Examples
     --------
     >>> f = func("[0]*exp(-0.5*((x-[1])/[2])^2)",
-    ...          xmin=-5, xmax=5,
+    ...          range=(-5, 5),
     ...          params=[1.0, 0.0, 1.0],
     ...          param_names=["A", "#mu", "#sigma"],
     ...          color="red", line_style="dashed")
     """
+    xmin, xmax = range
     c  = globals()["color"](color)
     ls = globals()["line_style"](line_style)
     f  = ROOT.TF1(f"f_{np.random.randint(10000)}", expression, xmin, xmax)
@@ -570,10 +570,8 @@ def func(
 
 def func2d(
     expression: str,
-    xmin: float,
-    xmax: float,
-    ymin: float,
-    ymax: float,
+    range_x: tuple[float, float],
+    range_y: tuple[float, float],
     params: list[float] = None,
     param_names: list[str] = None,
     title: str = "",
@@ -596,10 +594,10 @@ def func2d(
     ----------
     expression : str
         ROOT TFormula string, e.g. ``"sin(x)*cos(y)"``.
-    xmin, xmax : float
-        x-axis domain.
-    ymin, ymax : float
-        y-axis domain.
+    range_x : (float, float)
+        x-axis domain ``(xmin, xmax)``.
+    range_y : (float, float)
+        y-axis domain ``(ymin, ymax)``.
     params : list[float], optional
         Initial parameter values.
     param_names : list[str], optional
@@ -623,10 +621,13 @@ def func2d(
 
     Examples
     --------
-    >>> f = func2d("sin(x)*cos(y)", -3.14, 3.14, -3.14, 3.14,
+    >>> f = func2d("sin(x)*cos(y)",
+    ...            range_x=(-3.14, 3.14), range_y=(-3.14, 3.14),
     ...            xlabel="x [rad]", ylabel="y [rad]", zlabel="Amplitude")
     >>> draw([f])
     """
+    xmin, xmax = range_x
+    ymin, ymax = range_y
     c  = globals()["color"](color)
     ls = globals()["line_style"](line_style)
     f  = ROOT.TF2(f"f2d_{np.random.randint(10000)}", expression, xmin, xmax, ymin, ymax)
@@ -669,12 +670,9 @@ _TF3_DRAW_MODES: dict[str, str] = {
 
 def func3d(
     expression: str,
-    xmin: float,
-    xmax: float,
-    ymin: float,
-    ymax: float,
-    zmin: float,
-    zmax: float,
+    range_x: tuple[float, float],
+    range_y: tuple[float, float],
+    range_z: tuple[float, float],
     params: list[float] = None,
     param_names: list[str] = None,
     title: str = "",
@@ -707,12 +705,12 @@ def func3d(
     expression : str
         ROOT TFormula string, e.g. ``"x*x + y*y + z*z"`` or
         ``"[0]*exp(-[1]*(x*x+y*y+z*z))"``.
-    xmin, xmax : float
-        x-axis domain.
-    ymin, ymax : float
-        y-axis domain.
-    zmin, zmax : float
-        z-axis domain.
+    range_x : (float, float)
+        x-axis domain ``(xmin, xmax)``.
+    range_y : (float, float)
+        y-axis domain ``(ymin, ymax)``.
+    range_z : (float, float)
+        z-axis domain ``(zmin, zmax)``.
     params : list[float], optional
         Initial parameter values for ``[0]``, ``[1]``, ...
     param_names : list[str], optional
@@ -754,7 +752,7 @@ def func3d(
     Semi-transparent Gaussian sphere::
 
         f = func3d("exp(-(x*x+y*y+z*z)/(2*[0]*[0]))",
-                   -4, 4, -4, 4, -4, 4,
+                   range_x=(-4, 4), range_y=(-4, 4), range_z=(-4, 4),
                    params=[1.0], param_names=["#sigma"],
                    color="blue", fill_alpha=0.4)
         draw([f], labels=["Gaussian"])
@@ -763,7 +761,7 @@ def func3d(
 
         f = func3d(
             "(sqrt(x*x+y*y)-[0])^2 + z*z - [1]^2",
-            -4, 4, -4, 4, -2, 2,
+            range_x=(-4, 4), range_y=(-4, 4), range_z=(-2, 2),
             params=[2.5, 0.8], param_names=["R", "r"],
             fill_alpha=0.0, line_color="dark_blue", line_width=2,
         )
@@ -773,6 +771,10 @@ def func3d(
             f"Unknown draw_mode '{draw_mode}'. "
             f"Available: {list(_TF3_DRAW_MODES)}"
         )
+
+    xmin, xmax = range_x
+    ymin, ymax = range_y
+    zmin, zmax = range_z
 
     _color = globals()["color"]
     _ls    = globals()["line_style"]
@@ -830,8 +832,7 @@ def func3d(
 def fit(
     graph_or_hist,
     func_or_expr: ROOT.TF1 | str,
-    xmin: float = None,
-    xmax: float = None,
+    range: tuple[float, float] = None,
     params: list[float] = None,
     param_names: list[str] = None,
     options: str = "RS",
@@ -848,9 +849,9 @@ def fit(
     func_or_expr : ROOT.TF1 or str
         Either a pre-built ``TF1`` (see :func:`func`) or a ROOT TFormula
         string such as ``"gaus"``, ``"pol2"``, ``"[0]*exp(-[1]*x)"``.
-        If a string is given, ``xmin`` and ``xmax`` are required.
-    xmin, xmax : float, optional
-        Fit range.  Required when ``func_or_expr`` is a string.
+        If a string is given, ``range`` is required.
+    range : (float, float), optional
+        Fit range ``(xmin, xmax)``.  Required when ``func_or_expr`` is a string.
     params : list[float], optional
         Initial parameter values (only used when ``func_or_expr`` is a string).
     param_names : list[str], optional
@@ -871,13 +872,13 @@ def fit(
 
     Examples
     --------
-    >>> f = fit(h, "gaus", xmin=-3, xmax=3)
+    >>> f = fit(h, "gaus", range=(-3, 3))
     >>> f = fit(g, my_tf1, options="RQS", print_results=False)
     """
     if isinstance(func_or_expr, str):
-        if xmin is None or xmax is None:
-            raise ValueError("xmin and xmax are required when fitting with a string expression.")
-        f = func(func_or_expr, xmin, xmax, params=params, param_names=param_names)
+        if range is None:
+            raise ValueError("range is required when fitting with a string expression.")
+        f = func(func_or_expr, range=range, params=params, param_names=param_names)
     else:
         f = func_or_expr
 
@@ -1020,7 +1021,7 @@ def histogram2d(
     bins_x, bins_y : int
         Number of bins along each axis (default 40).
     range_x, range_y : (float, float) or None
-        Axis ranges.  If ``None``, data min/max are used.
+        Axis ranges ``(min, max)``.  If ``None``, data min/max are used.
     title : str
         Histogram title (ROOT TLatex syntax).
     xlabel, ylabel, zlabel : str
@@ -1036,6 +1037,7 @@ def histogram2d(
     Examples
     --------
     >>> h2 = histogram2d(px, py, bins_x=60, bins_y=60,
+    ...                  range_x=(-5, 5), range_y=(-5, 5),
     ...                  xlabel="p_{x} [GeV/c]", ylabel="p_{y} [GeV/c]")
     >>> draw([h2])
     """
@@ -1168,7 +1170,7 @@ def fit_stats_entries(
         chi2  = f.GetChisquare()
         ratio = chi2 / ndf if ndf > 0 else float("nan")
         entries.append((_dummy(),
-                        f"{chi2_label} = {fmt.format(chi2)} / {ndf} = {fmt.format(ratio)}",
+                        f"{chi2_label} = {fmt.format(chi2)} / {ndf}",
                         ""))
 
     if show_params:
@@ -1220,8 +1222,8 @@ def make_legend(
     width: float = 0.25,
     row_height: float = 0.045,
     margin: float = 0.30,
-    border: int = 0,
-    fill_alpha: float = 0.0,
+    border: int = 1,
+    fill_alpha: float = 1.0,
 ) -> ROOT.TLegend:
     """
     Create a ``TLegend`` from a list of ROOT objects and label strings.
@@ -1250,9 +1252,9 @@ def make_legend(
     margin : float
         Fraction of the entry width reserved for the symbol (default 0.30).
     border : int
-        Border size in pixels (default 0 = no border).
+        Border size in pixels (default 1).
     fill_alpha : float
-        Background opacity in [0, 1] (default 0 = transparent).
+        Background opacity in [0, 1] (default 1.0 = fully opaque white).
 
     Returns
     -------
@@ -1399,8 +1401,8 @@ def draw(
     legend_ncols: int = 1,
     legend_text_size: float = 0.038,
     legend_margin: float = 0.25,
-    legend_border: int = 0,
-    legend_fill_alpha: float = 0.0,
+    legend_border: int = 1,
+    legend_fill_alpha: float = 1.0,
     hist_stats: bool = False,
     hist_stats_precision: int = 3,
     hist_stats_show_mean: bool = True,
@@ -1462,8 +1464,7 @@ def draw(
     legend_width : float
         Legend box width in NDC units (default 0.25).
     legend_row_height : float
-        Height of each legend row in NDC units (default 0.045).  Increase for
-        more row spacing; decrease to compact a tall legend.
+        Height of each legend row in NDC units (default 0.045).
     legend_ncols : int
         Number of columns in the legend (default 1).
     legend_text_size : float
@@ -1471,9 +1472,9 @@ def draw(
     legend_margin : float
         Fraction of each entry width reserved for the symbol (default 0.25).
     legend_border : int
-        Legend border size in pixels (default 0 = no border).
+        Legend border size in pixels (default 1).
     legend_fill_alpha : float
-        Legend background opacity in [0, 1] (default 0 = transparent).
+        Legend background opacity in [0, 1] (default 1.0 = fully opaque white).
 
     Histogram statistics in legend
     --------------------------------
@@ -1527,10 +1528,10 @@ def draw(
 
         draw([g1, g2, h2d], options=["AP", "dashed", "COLZ"])
 
-    Two-column legend with opaque white background::
+    Two-column legend::
 
         draw([h1, h2, h3, h4], labels=[...],
-             legend_ncols=2, legend_fill_alpha=1.0, legend_border=1)
+             legend_ncols=2, legend_border=1)
     """
     canvas = ROOT.TCanvas(f"c_{np.random.randint(10000)}", "", width, height)
     if log_x:
@@ -1540,11 +1541,8 @@ def draw(
 
     # ── normalise options to a per-object list ────────────────────────────
     if isinstance(options, list):
-        # When a list is supplied, use "AP" as the internal global base for
-        # any graph-like object that has no explicit per-object override.
         global_base = "AP"
         per_obj_opts: list[str | None] = list(options)
-        # Pad with None so indexing never raises IndexError
         while len(per_obj_opts) < len(objects):
             per_obj_opts.append(None)
     else:
@@ -1552,9 +1550,6 @@ def draw(
         per_obj_opts = [None] * len(objects)
 
     # ── draw order: non-TF1 first so the frame/axes are created early ─────
-    # A bare TF1 cannot create axes on its own; drawing it first would
-    # produce a blank frame.  We find the first non-TF1 object and promote
-    # it to the front of the draw queue.
     first_graph_idx = next(
         (i for i, o in enumerate(objects) if not isinstance(o, ROOT.TF1)), None
     )
@@ -1575,7 +1570,6 @@ def draw(
         obj.Draw(opt)
 
     # ── axis title overrides ──────────────────────────────────────────────
-    # The "primary" object owns the axes; all overrides are applied to it.
     primary = objects[first_graph_idx] if first_graph_idx is not None else objects[0]
     if xlabel is not None:
         primary.GetXaxis().SetTitle(latex(xlabel))
@@ -1592,8 +1586,6 @@ def draw(
     if labels:
         converted_labels = [latex(lbl) for lbl in labels]
 
-        # Pre-collect optional stat entries so their count is known before the
-        # legend box dimensions are computed.
         hist_stat_map: dict[int, list] = {}
         fit_stat_map:  dict[int, list] = {}
         n_stat_rows = 0
@@ -1630,12 +1622,10 @@ def draw(
                     fit_stat_map[id(obj)] = entries
                     n_stat_rows += len(entries)
 
-        # Compute legend box height from total number of rows
         n_total_entries = len(objects) + n_stat_rows
         total_h = int(np.ceil(n_total_entries / legend_ncols)) * legend_row_height
         total_w = legend_width
 
-        # Resolve NDC coordinates from the position argument
         if isinstance(legend_pos, tuple):
             x1, y1, x2, y2 = legend_pos
         elif legend_pos in _LEGEND_ANCHORS:
@@ -1660,7 +1650,6 @@ def draw(
         if legend_fill_alpha > 0:
             legend.SetFillColorAlpha(ROOT.kWhite, legend_fill_alpha)
 
-        # Add main entries, then any stat sub-entries immediately after each object
         for obj, label in zip(objects, converted_labels):
             legend.AddEntry(obj, label, _legend_option(obj))
             if id(obj) in hist_stat_map:
