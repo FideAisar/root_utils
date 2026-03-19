@@ -198,9 +198,15 @@ def _uid():
 
 # ── Graphs ────────────────────────────────────────────────────────────────────
 
-def graph(x, y, ex=None, ey=None, title="", xlabel="x", ylabel="y",
-          color="blue", marker="circle", marker_size=1.2,
-          line_style="solid", line_width=2):
+def graph(x, y, ex=None, ey=None, 
+          title="", 
+          xlabel="x", 
+          ylabel="y",
+          color="light_blue", 
+          marker="square", 
+          marker_size=1.2,
+          line_style="solid", 
+          line_width=2):
     
     """Create a styled TGraphErrors. ex/ey default to zero."""
     n = len(x)
@@ -306,8 +312,13 @@ def func3d(expression, range_x, range_y, range_z,
 
 # ── Fitting ───────────────────────────────────────────────────────────────────
 
-def fit(graph_or_hist, func_or_expr, range=None, params=None, param_names=None,
-        options="QRS", print_results=True, units=None):
+def fit(graph_or_hist, 
+        func_or_expr, 
+        range=None, 
+        params=None, param_names=None,
+        options="QRS", 
+        print_results=True, 
+        units=None):
     
     """Fit a histogram or graph; optionally print a parameter table."""
     if isinstance(func_or_expr, str):
@@ -427,7 +438,7 @@ def fit_stats_entries(f, show_chi2=True, show_params=True, show_errors=True,
 
 _LEGEND_ANCHORS = {
     "top_right":    (0.92, 0.92, "TR"),
-    "top_left":     (0.15, 0.92, "TL"),
+    "top_left":     (0.20, 0.92, "TL"),
     "bottom_right": (0.92, 0.15, "BR"),
     "bottom_left":  (0.15, 0.15, "BL"),
     "top_center":   (0.535, 0.92, "TC"),
@@ -522,7 +533,7 @@ def draw(objects,
          hist_stats_mean_label="Mean", 
          hist_stats_std_label="Std Dev",
          hist_stats_counts_label="Counts",
-         fit_stats=False, fit_stats_precision=3,
+         fit_stats=True, fit_stats_precision=2,
          fit_stats_show_chi2=True, 
          fit_stats_show_params=True,
          fit_stats_show_errors=True,
