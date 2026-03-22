@@ -198,24 +198,24 @@ def _uid():
 
 # ── Graphs ────────────────────────────────────────────────────────────────────
 
-def graph(x, y, ex=None, ey=None, 
-          title="", 
-          xlabel="x", 
+def graph(x, y, ex=None, ey=None,
+          title="",
+          xlabel="x",
           ylabel="y",
-          color="light_blue", 
-          marker="square", 
+          color="light_blue",
+          marker="square",
           marker_size=1.2,
-          line_style="solid", 
+          line_style="solid",
           line_width=2):
-    
+
     """Create a styled TGraphErrors. ex/ey default to zero."""
     n = len(x)
     _ex = np.zeros(n) if ex is None else np.asarray(ex, float)
     _ey = np.zeros(n) if ey is None else np.asarray(ey, float)
-    
+
     g = ROOT.TGraphErrors(n, np.asarray(x, float), np.asarray(y, float), _ex, _ey)
     g.SetTitle(_title(title, xlabel, ylabel))
-    
+
     _apply_marker(g, globals()["color"](color), globals()["marker_style"](marker), marker_size)
     _apply_line(g, globals()["color"](color), globals()["line_style"](line_style), line_width)
     return g
@@ -225,11 +225,11 @@ def graph_asymm(x, y, exl=None, exh=None, eyl=None, eyh=None,
                 title="", xlabel="x", ylabel="y",
                 color="blue", marker="circle", marker_size=1.2,
                 line_style="solid", line_width=2):
-    
+
     """Create a styled TGraphAsymmErrors with independent low/high error bars."""
     n = len(x)
     z = np.zeros(n)
-    
+
     g = ROOT.TGraphAsymmErrors(
         n, np.asarray(x, float), np.asarray(y, float),
         z if exl is None else np.asarray(exl, float),
@@ -238,7 +238,7 @@ def graph_asymm(x, y, exl=None, exh=None, eyl=None, eyh=None,
         z if eyh is None else np.asarray(eyh, float),
     )
     g.SetTitle(_title(title, xlabel, ylabel))
-    
+
     _apply_marker(g, globals()["color"](color), globals()["marker_style"](marker), marker_size)
     _apply_line(g, globals()["color"](color), globals()["line_style"](line_style), line_width)
     return g
@@ -256,11 +256,11 @@ def _set_params(f, params, param_names):
 def func(expression, range, params=None, param_names=None,
          title="", xlabel="x", ylabel="f(x)",
          color="red", line_style="solid", line_width=2, npx=1000):
-    
+
     """Create a styled TF1."""
     f = ROOT.TF1(f"f_{_uid()}", expression, *range)
     f.SetTitle(_title(title, xlabel, ylabel))
-    
+
     _apply_line(f, globals()["color"](color), globals()["line_style"](line_style), line_width)
     f.SetNpx(npx)
     _set_params(f, params, param_names)
@@ -270,11 +270,11 @@ def func(expression, range, params=None, param_names=None,
 def func2d(expression, range_x, range_y, params=None, param_names=None,
            title="", xlabel="x", ylabel="y", zlabel="f(x,y)",
            color="red", line_style="solid", line_width=2, npx=1000, npy=1000):
-    
+
     """Create a styled TF2."""
     f = ROOT.TF2(f"f2d_{_uid()}", expression, *range_x, *range_y)
     f.SetTitle(_title(title, xlabel, ylabel, zlabel))
-    
+
     _apply_line(f, globals()["color"](color), globals()["line_style"](line_style), line_width)
     f.SetNpx(npx); f.SetNpy(npy)
     _set_params(f, params, param_names)
@@ -292,7 +292,7 @@ def func3d(expression, range_x, range_y, range_z,
            color="red", fill_color=None, fill_alpha=0.5,
            line_color=None, line_style="solid", line_width=1,
            draw_mode="iso", npx=30, npy=30, npz=30):
-    
+
     """Create a styled TF3 isosurface."""
     if draw_mode not in _TF3_DRAW_MODES:
         raise ValueError(f"Unknown draw_mode '{draw_mode}'. Available: {list(_TF3_DRAW_MODES)}")
@@ -312,14 +312,14 @@ def func3d(expression, range_x, range_y, range_z,
 
 # ── Fitting ───────────────────────────────────────────────────────────────────
 
-def fit(graph_or_hist, 
-        func_or_expr, 
-        range=None, 
+def fit(graph_or_hist,
+        func_or_expr,
+        range=None,
         params=None, param_names=None,
-        options="QRS", 
-        print_results=True, 
+        options="QRS",
+        print_results=True,
         units=None):
-    
+
     """Fit a histogram or graph; optionally print a parameter table."""
     if isinstance(func_or_expr, str):
         if range is None:
@@ -327,7 +327,7 @@ def fit(graph_or_hist,
         f = globals()["func"](func_or_expr, range=range, params=params, param_names=param_names)
     else:
         f = func_or_expr
-        
+
     graph_or_hist.Fit(f, options)
     if print_results:
         print_params(f, units=units)
@@ -358,11 +358,11 @@ def print_params(f, units=None, precision=3):
 def histogram(data, bins=50, range=None, title="", xlabel="x", ylabel="Counts",
               color="blue", line_style="solid", line_width=2,
               fill=True, fill_alpha=0.3):
-    
+
     """Create and fill a TH1D from a numpy array."""
     data = np.asarray(data, float)
     xmin, xmax = (range[0], range[1]) if range else (data.min(), data.max())
-    
+
     h = ROOT.TH1D(f"h1_{_uid()}", _title(title, xlabel, ylabel), bins, xmin, xmax)
     h.FillN(len(data), data, np.ones(len(data)))
     _apply_line(h, globals()["color"](color), globals()["line_style"](line_style), line_width)
@@ -374,13 +374,13 @@ def histogram(data, bins=50, range=None, title="", xlabel="x", ylabel="Counts",
 
 def histogram2d(x, y, bins_x=40, bins_y=40, range_x=None, range_y=None,
                 title="", xlabel="x", ylabel="y", zlabel="Counts", palette=None):
-    
+
     """Create and fill a TH2D from two numpy arrays."""
     xmin = range_x[0] if range_x else float(np.min(x))
     xmax = range_x[1] if range_x else float(np.max(x))
     ymin = range_y[0] if range_y else float(np.min(y))
     ymax = range_y[1] if range_y else float(np.max(y))
-    
+
     h = ROOT.TH2D(f"h2_{_uid()}", _title(title, xlabel, ylabel, zlabel),
                   bins_x, xmin, xmax, bins_y, ymin, ymax)
     for xi, yi in zip(x, y):
@@ -392,15 +392,15 @@ def histogram2d(x, y, bins_x=40, bins_y=40, range_x=None, range_y=None,
 # ── Legend stats helpers ──────────────────────────────────────────────────────
 
 def _dummy_box():
-    b = ROOT.TBox(0, 0, 0, 0); 
-    b.SetFillStyle(0); 
-    b.SetLineStyle(0); 
+    b = ROOT.TBox(0, 0, 0, 0);
+    b.SetFillStyle(0);
+    b.SetLineStyle(0);
     return b
 
 def hist_stats_entries(h, show_mean=True, show_std=True, show_counts=True,
                        precision=3, mean_label="Mean", std_label="Std Dev",
                        counts_label="Counts"):
-    
+
     """Return legend entries with histogram statistics (mean, std dev, counts)."""
     fmt = f"{{:.{precision}f}}"
     entries = []
@@ -413,11 +413,11 @@ def hist_stats_entries(h, show_mean=True, show_std=True, show_counts=True,
 def fit_stats_entries(f, show_chi2=True, show_params=True, show_errors=True,
                       precision=3, chi2_label="#chi^{2} / NDF",
                       param_names_override=None, units=None):
-    
+
     """Return legend entries with fit results (chi2, parameters, errors)."""
     fmt = f"{{:.{precision}f}}"
     entries = []
-    
+
     if show_chi2:
         ndf = f.GetNDF()
         entries.append((_dummy_box(), f"{chi2_label} = {fmt.format(f.GetChisquare())} / {ndf}", ""))
@@ -454,11 +454,11 @@ def _legend_coords(pos, total_w, total_h):
         return pos
     if pos not in _LEGEND_ANCHORS:
         raise ValueError(f"Unknown legend position '{pos}'")
-    
+
     ax, ay, corner = _LEGEND_ANCHORS[pos]
     y2 = ay if "T" in corner else ay + total_h
     y1 = y2 - total_h
-    
+
     if "R" in corner:   x2, x1 = ax, ax - total_w
     elif "L" in corner: x1, x2 = ax, ax + total_w
     else:               x1, x2 = ax - total_w/2, ax + total_w/2
@@ -467,16 +467,16 @@ def _legend_coords(pos, total_w, total_h):
 def make_legend(objects, labels, pos="top_right", ncols=1, text_size=0.038,
                 width=0.25, row_height=0.045, margin=0.30,
                 border=1, fill_alpha=1.0):
-    
+
     """Create a TLegend from a list of ROOT objects and labels."""
     n_rows = int(np.ceil(len(objects) / ncols))
     x1, y1, x2, y2 = _legend_coords(pos, width, n_rows * row_height)
-    
+
     leg = ROOT.TLegend(x1, y1, x2, y2)
     leg.SetNColumns(ncols); leg.SetTextSize(text_size); leg.SetMargin(margin)
     leg.SetBorderSize(border)
     leg.SetFillStyle(0 if fill_alpha == 0.0 else 1001)
-    
+
     if fill_alpha > 0: leg.SetFillColorAlpha(ROOT.kWhite, fill_alpha)
     for obj, label in zip(objects, labels):
         leg.AddEntry(obj, label, _legend_option(obj))
@@ -512,40 +512,141 @@ def _resolve_draw_option(obj, per_item, first, base):
     return opt
 
 
-def draw(objects, 
+def _apply_axis_style(axis_obj, title=None, title_size=None, title_offset=None,
+                      title_color=None, label_size=None, label_color=None,
+                      label_offset=None, tick_length=None, ndivisions=None,
+                      invert=False):
+    """Apply fine-grained style settings to a single TAxis object."""
+    if title        is not None: axis_obj.SetTitle(latex(title))
+    if title_size   is not None: axis_obj.SetTitleSize(title_size)
+    if title_offset is not None: axis_obj.SetTitleOffset(title_offset)
+    if title_color  is not None: axis_obj.SetTitleColor(color(title_color))
+    if label_size   is not None: axis_obj.SetLabelSize(label_size)
+    if label_color  is not None: axis_obj.SetLabelColor(color(label_color))
+    if label_offset is not None: axis_obj.SetLabelOffset(label_offset)
+    if tick_length  is not None: axis_obj.SetTickLength(tick_length)
+    if ndivisions   is not None: axis_obj.SetNdivisions(ndivisions)
+    if invert:                   axis_obj.SetInverseVector(True)
+
+
+def draw(objects,
          labels=None, xlabel=None, ylabel=None,
          xrange=None, yrange=None, options="AP",
-         width=900, height=600, 
+         width=900, height=600,
          log_x=False, log_y=False,
-         legend_pos="top_right", 
-         legend_width=0.25, 
+         # ── Grid ──────────────────────────────────────────────────────────────
+         grid_x=False,
+         grid_y=False,
+         grid_color="gray",
+         grid_style="dashed",
+         grid_width=1,
+         # ── X-axis fine control ───────────────────────────────────────────────
+         x_title=None,
+         x_title_size=None,
+         x_title_offset=None,
+         x_title_color=None,
+         x_label_size=None,
+         x_label_color=None,
+         x_label_offset=None,
+         x_tick_length=None,
+         x_ndivisions=None,
+         x_invert=False,
+         # ── Y-axis fine control ───────────────────────────────────────────────
+         y_title=None,
+         y_title_size=None,
+         y_title_offset=None,
+         y_title_color=None,
+         y_label_size=None,
+         y_label_color=None,
+         y_label_offset=None,
+         y_tick_length=None,
+         y_ndivisions=None,
+         y_invert=False,
+         # ── Legend ────────────────────────────────────────────────────────────
+         legend_pos="top_right",
+         legend_width=0.25,
          legend_row_height=0.045,
-         legend_ncols=1, 
-         legend_text_size=0.038, 
+         legend_ncols=1,
+         legend_text_size=0.038,
          legend_margin=0.25,
-         legend_border=1, 
+         legend_border=1,
          legend_fill_alpha=1.0,
-         hist_stats=False, 
+         # ── Histogram stats ───────────────────────────────────────────────────
+         hist_stats=False,
          hist_stats_precision=3,
-         hist_stats_show_mean=True, 
+         hist_stats_show_mean=True,
          hist_stats_show_std=True,
          hist_stats_show_counts=True,
-         hist_stats_mean_label="Mean", 
+         hist_stats_mean_label="Mean",
          hist_stats_std_label="Std Dev",
          hist_stats_counts_label="Counts",
+         # ── Fit stats ─────────────────────────────────────────────────────────
          fit_stats=True, fit_stats_precision=2,
-         fit_stats_show_chi2=True, 
+         fit_stats_show_chi2=True,
          fit_stats_show_params=True,
          fit_stats_show_errors=True,
          fit_stats_chi2_label="#chi^{2} / NDF",
          fit_stats_param_names=None, fit_stats_units=None,
          save=None):
-    
-    """Draw ROOT objects on a canvas with optional legend, stats, and file save."""
+
+    """
+    Draw ROOT objects on a canvas with optional legend, stats, axis styling,
+    grid, and file save.
+
+    Grid parameters
+    ---------------
+    grid_x : bool
+        Draw vertical grid lines (along X). Default False.
+    grid_y : bool
+        Draw horizontal grid lines (along Y). Default False.
+    grid_color : str or int
+        Color of the grid lines. Default "gray".
+    grid_style : str or int
+        Line style for the grid. Default "dashed".
+    grid_width : int
+        Line width for the grid. Default 1.
+
+    Axis parameters  (prefix x_ / y_)
+    ----------------------------------
+    x_title / y_title : str
+        Override the axis title (supports TLatex). Equivalent to xlabel/ylabel
+        but applied after drawing, so they can also be used together.
+    x_title_size / y_title_size : float
+        Title font size in NDC units (e.g. 0.05).
+    x_title_offset / y_title_offset : float
+        Distance between axis and its title.
+    x_title_color / y_title_color : str or int
+        Color of the axis title.
+    x_label_size / y_label_size : float
+        Tick-label font size.
+    x_label_color / y_label_color : str or int
+        Color of the tick labels.
+    x_label_offset / y_label_offset : float
+        Distance between tick marks and labels.
+    x_tick_length / y_tick_length : float
+        Length of major tick marks (fraction of pad height/width).
+    x_ndivisions / y_ndivisions : int
+        Number of divisions encoded as ROOT's standard integer
+        (e.g. 510 = 10 primary + 5 secondary).
+    x_invert / y_invert : bool
+        Reverse the axis direction. Default False.
+    """
+
     canvas = ROOT.TCanvas(f"c_{_uid()}", "", width, height)
     if log_x: canvas.SetLogx()
     if log_y: canvas.SetLogy()
 
+    # ── Grid setup ────────────────────────────────────────────────────────────
+    if grid_x or grid_y:
+        gc = color(grid_color)
+        gs = line_style(grid_style)
+        ROOT.gStyle.SetGridColor(gc)
+        ROOT.gStyle.SetGridStyle(gs)
+        ROOT.gStyle.SetGridWidth(grid_width)
+        canvas.SetGridx(int(grid_x))
+        canvas.SetGridy(int(grid_y))
+
+    # ── Draw objects ──────────────────────────────────────────────────────────
     if isinstance(options, list):
         global_base = "AP"
         per_obj_opts = list(options) + [None] * (len(objects) - len(options))
@@ -564,11 +665,32 @@ def draw(objects,
         obj.Draw(opt)
 
     primary = objects[first_idx] if first_idx is not None else objects[0]
+
+    # ── Standard axis labels (backward-compatible) ────────────────────────────
     if xlabel: primary.GetXaxis().SetTitle(latex(xlabel))
     if ylabel: primary.GetYaxis().SetTitle(latex(ylabel))
     if xrange: primary.GetXaxis().SetRangeUser(*xrange)
     if yrange: primary.GetYaxis().SetRangeUser(*yrange)
 
+    # ── Fine-grained X-axis styling ───────────────────────────────────────────
+    _apply_axis_style(
+        primary.GetXaxis(),
+        title=x_title, title_size=x_title_size, title_offset=x_title_offset,
+        title_color=x_title_color, label_size=x_label_size,
+        label_color=x_label_color, label_offset=x_label_offset,
+        tick_length=x_tick_length, ndivisions=x_ndivisions, invert=x_invert,
+    )
+
+    # ── Fine-grained Y-axis styling ───────────────────────────────────────────
+    _apply_axis_style(
+        primary.GetYaxis(),
+        title=y_title, title_size=y_title_size, title_offset=y_title_offset,
+        title_color=y_title_color, label_size=y_label_size,
+        label_color=y_label_color, label_offset=y_label_offset,
+        tick_length=y_tick_length, ndivisions=y_ndivisions, invert=y_invert,
+    )
+
+    # ── Legend ────────────────────────────────────────────────────────────────
     legend = None
     if labels:
         stat_map = {}
@@ -590,7 +712,7 @@ def draw(objects,
 
         if fit_stats:
             for obj in objects:
-                if isinstance(obj, ROOT.TF1):
+                if isinstance(obj, ROOT.TF1) and obj.GetNDF() > 0:
                     entries = fit_stats_entries(obj,
                         show_chi2=fit_stats_show_chi2,
                         show_params=fit_stats_show_params,
@@ -604,14 +726,14 @@ def draw(objects,
 
         n_rows = int(np.ceil((len(objects) + n_stat_rows) / legend_ncols))
         x1, y1, x2, y2 = _legend_coords(legend_pos, legend_width, n_rows * legend_row_height)
-        
+
         legend = ROOT.TLegend(x1, y1, x2, y2)
         legend.SetNColumns(legend_ncols)
         legend.SetTextSize(legend_text_size)
         legend.SetMargin(legend_margin)
         legend.SetBorderSize(legend_border)
         legend.SetFillStyle(0 if legend_fill_alpha == 0.0 else 1001)
-        
+
         if legend_fill_alpha > 0:
             legend.SetFillColorAlpha(ROOT.kWhite, legend_fill_alpha)
 
